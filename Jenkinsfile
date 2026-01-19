@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_ENV = 'production'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -9,21 +13,25 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Build application'
+                dir('frontend') {
+                    sh 'npm install'
+                }
             }
         }
 
-        stage('Test') {
+        stage('Build Frontend') {
             steps {
-                echo 'Run test'
+                dir('frontend') {
+                    sh 'npm run build'
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploy to Development Server'
+                echo 'Deploy frontend (next step)'
             }
         }
     }
