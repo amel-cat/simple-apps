@@ -1,22 +1,30 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        DEV_HOST = "192.168.77.201"
+        DEV_USER = "root"
+        APP_DIR  = "/simple-apps"
+    }
 
-        stage('Install & Build') {
+    stages {
+        stage('Checkout') {
             steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
+                checkout scm
             }
         }
 
-        stage('Docker Build Frontend') {
+        stage('Deploy to Dev') {
             steps {
-                sh 'docker build -t frontend-dev ./frontend'
+                sh """
+                ssh -o StrictHostKeyChecking=no ${DEV_USER}@${DEV_HOST} << EOF
+                    cd ${APP_DIR}
+                    git pull origin develop
+                EOF
+                """
             }
         }
     }
 }
+
 
