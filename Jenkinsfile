@@ -1,30 +1,29 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     environment {
-        DEV_HOST = "192.168.77.201"
-        DEV_USER = "root"
-        APP_DIR  = "/simple-apps"
+        SSH_USER = "root"
+        SSH_HOST = "192.168.77.201"
+        SSH_PASS = "123"
+        APP_DIR  = "/root/simple-apps"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Deploy to Dev') {
+        stage('SSH Git Pull') {
             steps {
                 sh """
-                ssh -o StrictHostKeyChecking=no ${DEV_USER}@${DEV_HOST} << EOF
-                    cd ${APP_DIR}
+                sshpass -p '${SSH_PASS}' ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "
+                    git config --global --add safe.directory ${APP_DIR}
+                    cd ${APP_DIR} || exit 1
                     git pull origin develop
-                EOF
+                "
                 """
             }
         }
     }
 }
-
 
