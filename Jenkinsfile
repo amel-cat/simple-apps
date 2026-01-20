@@ -2,21 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Install Dependencies') {
+
+        stage('Install & Build') {
             steps {
-                sh '''
-                  cd frontend
-                  npm install
-                '''
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
             }
         }
 
-        stage('Build Frontend') {
+        stage('Docker Build Frontend') {
             steps {
-                sh '''
-                  cd frontend
-                  npm run build
-                '''
+                sh 'docker build -t frontend-dev ./frontend'
             }
         }
     }
